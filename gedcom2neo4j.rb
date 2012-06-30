@@ -5,6 +5,14 @@ require 'rubygems'
 require 'neography'
 require 'gedcom'
 
+## bug in individual_record.rb
+def is_dead(p)
+  if p.event_record != nil
+	p.event_record.each { |e| if e.is_event('DEAT') then return e end }
+  end
+  nil
+end
+
 
 
 if ARGV.length < 1
@@ -35,7 +43,7 @@ end
   node = Neography::Node.create
   node[:FIRST_NAME] = person.name_record[0].given[0][0]
   node[:LAST_NAME] = person.name_record[0].surname[0][0] if not person.name_record[0].surname.nil?
-  if person.death
+  if is_dead(person)
 	node[:DESEASED] = :yes
   end
   person.individual_attribute_record.each do |r|
@@ -47,6 +55,7 @@ end
   end
   @persons[person.individual_ref[0][1]] = node
 end
+
 
 
 @parser.transmission.family_record.each do |family|
